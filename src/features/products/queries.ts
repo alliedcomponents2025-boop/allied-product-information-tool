@@ -102,6 +102,7 @@ function mapVariantRow(item: Record<string, unknown>): ProductVariant {
     shielded: (item.shielded as string | null) ?? null,
     mounting_type: (item.mounting_type as string | null) ?? null,
     datasheet_url: (item.datasheet_url as string | null) ?? null,
+    image_url: (item.image_url as string | null) ?? null,
     sync_status: String(item.sync_status ?? "pending") as ProductVariant["sync_status"],
   };
 }
@@ -483,6 +484,7 @@ export async function saveVariant(
     shielded: input.shielded || null,
     mounting_type: input.mounting_type || null,
     datasheet_url: input.datasheet_url || null,
+    image_url: input.image_url || null,
   };
 
   const query = input.id

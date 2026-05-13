@@ -185,6 +185,7 @@ export const mockVariantsByProductId: Record<string, ProductVariant[]> = {
       shielded: "Yes",
       mounting_type: "Surface mount",
       datasheet_url: "https://example.com/datasheets/tc210.pdf",
+      image_url: null,
       sync_status: "synced",
     },
     {
@@ -209,6 +210,7 @@ export const mockVariantsByProductId: Record<string, ProductVariant[]> = {
       shielded: "Yes",
       mounting_type: "Surface mount",
       datasheet_url: "https://example.com/datasheets/tc210.pdf",
+      image_url: null,
       sync_status: "pending",
     },
   ],
@@ -235,6 +237,7 @@ export const mockVariantsByProductId: Record<string, ProductVariant[]> = {
       shielded: "Yes",
       mounting_type: "Surface mount",
       datasheet_url: "",
+      image_url: null,
       sync_status: "pending",
     },
   ],

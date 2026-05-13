@@ -51,6 +51,14 @@ Phase 7 wrap up and live app smoke testing before Phase 8 Teams notifications.
 
 - Smoke testing the live app against imported data
 
+## Recently Completed (this session, continued)
+
+- Created the `product-images` Supabase Storage bucket (public, 20 MB limit, jpeg/png only)
+- Added storage RLS policies for authenticated upload/update/delete and public read on the bucket via migration `20260514000000_phase_4_storage_policies.sql`
+- Added `variants.image_url` and `product_images.source_url` columns via migration `20260514010000_variant_image_url.sql`
+- Backfilled `variants.image_url` from the CSV's `Variant Image` column for 7491 of 7500 variants. The 9 unfilled variants simply have no image in Shopify. Sync queue cleaned up afterward (0 pending).
+- Updated the variant editor UI to render a thumbnail preview at the top of each variant row plus an editable `image_url` input field. Threaded the field through `types.ts`, `queries.ts`, `actions.ts`, and `mock-data.ts`. Importer now maps `Variant Image` to `image_url` for future runs.
+
 ## Recently Completed (this session)
 
 - Rewrote `scripts/import-shopify-csv.mjs` for Matrixify CSV format with family classification via Smart Collections (priority order: transformer, rj45-usb-connectors, lan-telecom-magnetics, CMC, inductor, fallback to other)

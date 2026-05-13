@@ -71,6 +71,7 @@ export type ProductVariant = {
   shielded: string | null;
   mounting_type: string | null;
   datasheet_url: string | null;
+  image_url: string | null;
   sync_status: SyncStatus;
 };
 
@@ -172,6 +173,7 @@ export type SaveVariantInput = {
   shielded: string;
   mounting_type: string;
   datasheet_url: string;
+  image_url: string;
 };
 
 export type ReplaceImageInput = {

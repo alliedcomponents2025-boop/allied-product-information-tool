@@ -116,6 +116,7 @@ export async function saveVariantAction(
     shielded: String(formData.get("shielded") ?? "").trim(),
     mounting_type: String(formData.get("mounting_type") ?? "").trim(),
     datasheet_url: String(formData.get("datasheet_url") ?? "").trim(),
+    image_url: String(formData.get("image_url") ?? "").trim(),
   };
 
   if (!payload.product_id || !payload.sku) {

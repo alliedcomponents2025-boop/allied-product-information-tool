@@ -219,6 +219,7 @@ function mapVariant(row, productId, position) {
       "Variant Metafield: custom.datasheet_url1 [single_line_text_field]",
       "Variant Metafield: custom.datasheet_url [string]",
     ]),
+    image_url: text(row["Variant Image"]) || null,
     sync_status: "synced",
     sync_error_message: null,
     last_synced_at: new Date().toISOString(),

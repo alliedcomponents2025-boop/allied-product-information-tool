@@ -35,6 +35,7 @@ type VariantDraft = {
   shielded: string;
   mounting_type: string;
   datasheet_url: string;
+  image_url: string;
   sync_status?: ProductVariant["sync_status"];
   inventory_qty?: number | null;
 };
@@ -60,6 +61,7 @@ function toDraft(variant: ProductVariant): VariantDraft {
     shielded: variant.shielded ?? "",
     mounting_type: variant.mounting_type ?? "",
     datasheet_url: variant.datasheet_url ?? "",
+    image_url: variant.image_url ?? "",
     sync_status: variant.sync_status,
     inventory_qty: variant.inventory_qty,
   };
@@ -84,6 +86,7 @@ const emptyDraft = (position: number): VariantDraft => ({
   shielded: "",
   mounting_type: "",
   datasheet_url: "",
+  image_url: "",
   sync_status: "pending",
   inventory_qty: null,
 });
@@ -124,16 +127,30 @@ function VariantRow({
         <input type="hidden" name="id" value={draft.id ?? ""} />
 
         <div className="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
-          <div className="flex flex-wrap items-center gap-2">
-            <h4 className="text-base font-semibold text-slate-900">
-              {draft.sku || "New variant"}
-            </h4>
-            {draft.sync_status ? (
-              <StatusBadge value={draft.sync_status} kind="sync" />
-            ) : null}
-            <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
-              Inventory {draft.inventory_qty ?? "N/A"}
-            </span>
+          <div className="flex items-center gap-3">
+            {draft.image_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={draft.image_url}
+                alt={draft.sku || "Variant image"}
+                className="h-14 w-14 rounded-xl border border-slate-200 object-cover"
+              />
+            ) : (
+              <div className="flex h-14 w-14 items-center justify-center rounded-xl border border-dashed border-slate-300 bg-slate-50 text-xs text-slate-400">
+                No image
+              </div>
+            )}
+            <div className="flex flex-wrap items-center gap-2">
+              <h4 className="text-base font-semibold text-slate-900">
+                {draft.sku || "New variant"}
+              </h4>
+              {draft.sync_status ? (
+                <StatusBadge value={draft.sync_status} kind="sync" />
+              ) : null}
+              <span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-700">
+                Inventory {draft.inventory_qty ?? "N/A"}
+              </span>
+            </div>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             {onRemoveDraft ? (
@@ -181,6 +198,7 @@ function VariantRow({
             ["shielded", "Shielded"],
             ["mounting_type", "Mounting type"],
             ["datasheet_url", "Datasheet URL"],
+            ["image_url", "Image URL"],
           ].map(([name, label]) => (
             <label key={name} className="grid gap-2 text-sm">
               <span className="font-medium text-slate-700">{label}</span>
