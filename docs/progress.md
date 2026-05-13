@@ -56,6 +56,7 @@ Phase 7 wrap up and live app smoke testing before Phase 8 Teams notifications.
 - Designed and implemented a normalized `images` table (`source_url` unique, `storage_path` nullable) so multiple variants and products can reference the same image without duplicating it. Added `variants.image_id` and `product_images.image_id` foreign keys. RLS lets authenticated read; ops/admins manage.
 - Backfilled the new table from `variants.image_url`: 7491 variants collapsed into **909 unique image rows** (8.2x dedup). All 909 products now have a `product_images` row linking to their hero image's id.
 - Reverted an earlier attempt to download every variant image into Supabase Storage. That approach would have used ~2.5 GB which blew past the free tier 1 GB limit. After revert, bucket is empty and variants point at Shopify CDN URLs again. Future download phase can now target just the 909 unique images via the new images table (~270 MB total, well within free tier).
+- Downloaded all 909 unique images from Shopify CDN into the Supabase Storage `product-images` bucket. Real size came in at 71.8 MB total (~81 KB avg per image, well below our 300 KB estimate). 7490 variants now reference local Supabase URLs; 909 `product_images` rows point at the matching `shared/{image_id}.jpg` paths. Storage usage is 7% of the free tier. The app no longer depends on Shopify CDN for image display.
 
 ## Recently Completed (this session, continued)
 
