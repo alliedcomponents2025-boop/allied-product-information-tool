@@ -3,6 +3,8 @@ import { hasSupabaseEnv } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
+export const dynamic = "force-dynamic";
+
 export default async function AppLayout({
   children,
 }: Readonly<{
@@ -13,11 +15,9 @@ export default async function AppLayout({
   }
 
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { data, error } = await supabase.auth.getUser();
 
-  if (!user) {
+  if (error || !data?.user) {
     redirect("/login");
   }
 

@@ -38,6 +38,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# Source data exports (large, not code)
+Products.csv
+*.csv.bak
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

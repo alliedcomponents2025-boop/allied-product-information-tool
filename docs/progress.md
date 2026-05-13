@@ -6,7 +6,7 @@ Phase 7 wrap up and live app smoke testing before Phase 8 Teams notifications.
 
 ## Last Updated
 
-2026-05-13
+2026-05-14
 
 ## Completed
 
@@ -49,25 +49,29 @@ Phase 7 wrap up and live app smoke testing before Phase 8 Teams notifications.
 
 ## In Progress
 
-- Importing real Shopify product data into Supabase via `scripts/import-shopify-csv.mjs`
+- Smoke testing the live app against imported data
+
+## Recently Completed (this session)
+
+- Rewrote `scripts/import-shopify-csv.mjs` for Matrixify CSV format with family classification via Smart Collections (priority order: transformer, rj45-usb-connectors, lan-telecom-magnetics, CMC, inductor, fallback to other)
+- Imported all 912 products and 7500 variants from `Products.csv` with zero errors (35 minute runtime). 22 duplicate variant SKUs were correctly auto-skipped. Family distribution: 310 inductors, 188 connectors, 187 transformers, 96 lan_magnetics, 94 common_mode_chokes, 37 other.
+- Fixed an auth gating bug: `src/app/page.tsx` was re-exporting the dashboard from `(app)/page.tsx`, which bypassed the `(app)/layout.tsx` auth wrapper at the root URL. Removed the re-export so `/` now correctly resolves to `(app)/page.tsx` with the auth layout. Confirmed redirect to `/login` works in incognito.
+- Hardened the auth check in `src/app/(app)/layout.tsx` to also redirect on getUser errors (not just null user), and added `export const dynamic = "force-dynamic"` so route segments are never cached across sessions.
+- Backfilled `products.datasheet_url` from variant datasheets for 909 products and cleared the sync queue. Verified that `datasheet_url` is intentionally absent from the sync mapping, so empty product-level datasheet URLs were never a risk to push to Shopify.
+- Identified two Shopify data hygiene issues to revisit later: (1) duplicate product listings sharing variant SKUs (`vcmb81-series` vs `vcmb81-vcmbe81-series`, `pq3225-pfc-apq3225-3840-a` vs `apq3225-3840-a`), which caused 22 variants to be silently dropped on import for the second listing; (2) one product, MLBY02 Series, has 5 variants but no datasheet metafield in Shopify so it stays blank. Not blockers for current work.
 
 ## Next Checkpoint (pick up here next session)
 
-1. Locate the Shopify CSV export on disk. The user will know where it lives.
-2. Dry run the importer first, with the CSV path filled in:
-
-   ```bash
-   cd /Users/dongnghiem/allied-product-internal-tool && node scripts/import-shopify-csv.mjs --file <csv-path> --dry-run
-   ```
-
-3. Review the JSON summary that prints (productsCreated, variantsCreated, productsSkipped, errors). Confirm counts are in the expected ballpark (around 150 inductor products and around 2000 variants) and that the errors list is empty or only contains anomalies the user can explain.
-4. If the dry run looks correct, run for real by removing the `--dry-run` flag.
-5. Smoke test the app at `http://localhost:3000`:
-   - Confirm the dashboard stats reflect the imported counts
-   - Open one product, change a field such as title or tags, save, verify the success toast and that the audit log entry shows the diff
+1. Smoke test the app at `http://localhost:3000`:
+   - Confirm the dashboard stats reflect 912 products and 0 pending sync (everything was imported with sync_status synced)
+   - Open one inductor product (e.g., browse to the products page, pick an SMTC or SMTC3726 series), change a field such as title or tags, save, verify the success toast and that the audit log entry shows the diff
    - Try uploading a small JPG to the product images section (this is the first time the `product-images` storage bucket will be touched; if it does not exist yet, create it in Supabase Storage as a public bucket)
    - Click into `/audit` and confirm the entry from the edit shows up
-6. After smoke testing succeeds, decide whether to start Phase 8 Teams notifications or polish the Phase 7 sync page copy first.
+2. Verify the family filtering on `/products` works for all six tabs (only inductors had data before; now all six families have data).
+3. After smoke testing succeeds, decide between:
+   - Phase 8 Teams notifications
+   - Polish the Phase 7 sync page copy since real Shopify sync is now wired
+   - Expand the variants schema for the other five families so their family-specific specs (e.g., turns_ratio for transformers, ports for connectors) have a home (currently dropped on import)
 
 ## Current Blockers
 
