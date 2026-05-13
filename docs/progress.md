@@ -53,6 +53,12 @@ Phase 7 wrap up and live app smoke testing before Phase 8 Teams notifications.
 
 ## Recently Completed (this session, continued)
 
+- Designed and implemented a normalized `images` table (`source_url` unique, `storage_path` nullable) so multiple variants and products can reference the same image without duplicating it. Added `variants.image_id` and `product_images.image_id` foreign keys. RLS lets authenticated read; ops/admins manage.
+- Backfilled the new table from `variants.image_url`: 7491 variants collapsed into **909 unique image rows** (8.2x dedup). All 909 products now have a `product_images` row linking to their hero image's id.
+- Reverted an earlier attempt to download every variant image into Supabase Storage. That approach would have used ~2.5 GB which blew past the free tier 1 GB limit. After revert, bucket is empty and variants point at Shopify CDN URLs again. Future download phase can now target just the 909 unique images via the new images table (~270 MB total, well within free tier).
+
+## Recently Completed (this session, continued)
+
 - Created the `product-images` Supabase Storage bucket (public, 20 MB limit, jpeg/png only)
 - Added storage RLS policies for authenticated upload/update/delete and public read on the bucket via migration `20260514000000_phase_4_storage_policies.sql`
 - Added `variants.image_url` and `product_images.source_url` columns via migration `20260514010000_variant_image_url.sql`
@@ -70,16 +76,38 @@ Phase 7 wrap up and live app smoke testing before Phase 8 Teams notifications.
 
 ## Next Checkpoint (pick up here next session)
 
-1. Smoke test the app at `http://localhost:3000`:
-   - Confirm the dashboard stats reflect 912 products and 0 pending sync (everything was imported with sync_status synced)
-   - Open one inductor product (e.g., browse to the products page, pick an SMTC or SMTC3726 series), change a field such as title or tags, save, verify the success toast and that the audit log entry shows the diff
-   - Try uploading a small JPG to the product images section (this is the first time the `product-images` storage bucket will be touched; if it does not exist yet, create it in Supabase Storage as a public bucket)
-   - Click into `/audit` and confirm the entry from the edit shows up
-2. Verify the family filtering on `/products` works for all six tabs (only inductors had data before; now all six families have data).
-3. After smoke testing succeeds, decide between:
+**Image Path B is the agreed strategy** (chosen 2026-05-14): download all images from Shopify CDN into Supabase Storage so the app becomes the single source of truth for images. Required steps in order:
+
+1. Repoint variant images:
+   - For each of 7491 variants with `image_url`, download the image bytes from the current Shopify CDN URL
+   - Upload to the `product-images` bucket at `{family}/{sku}/{variant_sku}_YYYYMMDD_NN.jpg`
+   - Update `variants.image_url` to the new Supabase public URL
+   - Clear sync flags so the queue stays at 0 pending
+
+2. Backfill product images:
+   - For each of 912 products, take the top variant's Shopify CDN URL as the product hero image
+   - Download, upload to `product-images` at `{family}/{product_sku}/{product_sku}_YYYYMMDD_01.jpg`
+   - Insert a `product_images` row with `storage_path` set and `source_url` recording the original Shopify URL
+   - Result: every product's existing image gallery section now has at least one image
+
+3. Verify in the app:
+   - Variant thumbnails now load from Supabase Storage rather than cdn.shopify.com
+   - Product detail page shows the product hero image
+   - Replace / delete buttons on product images still work
+   - Sync queue stays at 0 pending
+
+4. After Path B is complete, pick the next phase:
    - Phase 8 Teams notifications
-   - Polish the Phase 7 sync page copy since real Shopify sync is now wired
-   - Expand the variants schema for the other five families so their family-specific specs (e.g., turns_ratio for transformers, ports for connectors) have a home (currently dropped on import)
+   - Wire image sync to Shopify (productCreateMedia / productDeleteMedia mutations)
+   - Expand variant schemas for non-inductor families
+
+Estimated runtime for steps 1 and 2 combined: 30 to 90 minutes of mostly bandwidth-bound work. ~300 MB total storage in the `product-images` bucket afterward.
+
+## Open user flow questions to address while implementing Path B
+
+- Should the Image URL input on variants stay editable now that the URL points to our own storage? Editing it manually would break the link to the file we stored.
+- After download, does the product detail page's images section still show upload / replace / delete buttons? They should still work, but the new "first image came from Shopify" still needs a clear visual indicator.
+- When a user uploads a NEW image via the app, does it become the product's primary image, or just an additional one? Today the gallery lists multiple. Likely keep as-is.
 
 ## Current Blockers
 
