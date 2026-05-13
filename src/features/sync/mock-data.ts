@@ -1,0 +1,68 @@
+import { SyncDashboardData } from "./types";
+
+export const mockSyncDashboardData: SyncDashboardData = {
+  settings: {
+    shopDomain: "allied-components-demo.myshopify.com",
+    shopifyAdminTokenConfigured: false,
+    syncFrequencyHours: 2,
+    businessHoursStart: 8,
+    businessHoursEnd: 18,
+  },
+  queue: [
+    {
+      id: "queue-product-1",
+      recordType: "product",
+      sku: "SH330",
+      title: "SH330 High Current Inductor",
+      family: "inductors",
+      syncStatus: "pending",
+      updatedAt: "2026-05-13T09:10:00.000Z",
+      errorMessage: null,
+    },
+    {
+      id: "queue-variant-1",
+      recordType: "variant",
+      sku: "TC210-220",
+      title: "TC210 Series Power Inductor",
+      family: "inductors",
+      syncStatus: "pending",
+      updatedAt: "2026-05-13T08:45:00.000Z",
+      errorMessage: null,
+    },
+    {
+      id: "queue-product-2",
+      recordType: "product",
+      sku: "RW075",
+      title: "RW075 Wire Wound Inductor",
+      family: "inductors",
+      syncStatus: "error",
+      updatedAt: "2026-05-11T02:15:00.000Z",
+      errorMessage: "Shopify validation rejected one metafield value.",
+    },
+  ],
+  history: [
+    {
+      id: "run-1",
+      status: "completed",
+      startedAt: "2026-05-13T08:00:00.000Z",
+      completedAt: "2026-05-13T08:06:00.000Z",
+      recordsAttempted: 14,
+      recordsSucceeded: 13,
+      recordsFailed: 1,
+      errorMessage: null,
+      triggerSource: "cron",
+    },
+    {
+      id: "run-2",
+      status: "completed",
+      startedAt: "2026-05-13T06:00:00.000Z",
+      completedAt: "2026-05-13T06:04:00.000Z",
+      recordsAttempted: 9,
+      recordsSucceeded: 9,
+      recordsFailed: 0,
+      errorMessage: null,
+      triggerSource: "manual",
+    },
+  ],
+  source: "mock",
+};
